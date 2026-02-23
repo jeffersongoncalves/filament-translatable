@@ -2,7 +2,7 @@
 
 namespace JeffersonGoncalves\FilamentTranslatable\Tables\Actions;
 
-use Filament\Tables\Actions\SelectAction;
+use Filament\Actions\SelectAction;
 use JeffersonGoncalves\FilamentTranslatable\Actions\Concerns\HasTranslatableLocaleOptions;
 
 class LocaleSwitcher extends SelectAction
