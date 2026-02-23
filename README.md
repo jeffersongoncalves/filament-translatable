@@ -1,25 +1,31 @@
 # Filament Translatable
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/jeffersongoncalves/filament-translatable.svg?style=flat-square)](https://packagist.org/packages/jeffersongoncalves/filament-translatable)
+[![Total Downloads](https://img.shields.io/packagist/dt/jeffersongoncalves/filament-translatable.svg?style=flat-square)](https://packagist.org/packages/jeffersongoncalves/filament-translatable)
+[![License](https://img.shields.io/packagist/l/jeffersongoncalves/filament-translatable.svg?style=flat-square)](LICENSE.md)
+
 Enhanced Filament plugin for [spatie/laravel-translatable](https://github.com/spatie/laravel-translatable) with translation status indicators, locale flags, and improved developer experience.
+
+## Version Compatibility
+
+| Branch | Filament | PHP | Laravel | Tailwind | Livewire | Install |
+|--------|----------|-----|---------|----------|----------|---------|
+| [1.x](https://github.com/jeffersongoncalves/filament-translatable/tree/1.x) | v3 | ^8.1 | 10+ | 3.x | 3.x | `"^1.0"` |
+| [2.x](https://github.com/jeffersongoncalves/filament-translatable/tree/2.x) | v4 | ^8.2 | 11+ | 4.x | 3.x | `"^2.0"` |
+| [3.x](https://github.com/jeffersongoncalves/filament-translatable/tree/3.x) | v5 | ^8.2 | 11.28+ | 4.x | 4.x | `"^3.0"` |
+
+> You are viewing the documentation for **branch 1.x** (Filament v3).
 
 ## Features
 
-- **Locale Switching** — Switch between locales on Create, Edit, List, View, and Manage pages
-- **Translation Status Column** — Visual table column showing translation completeness per locale with colored badges
-- **Translation Status Trait** — Introspect translation status (complete/partial/empty) and completeness percentage
-- **Locale Flags** — Emoji flag support with configurable display (flag+label, flag only, label only)
-- **Unified DX Trait** — `InteractsWithTranslations` for less boilerplate
-- **SQLite Search** — JSON search support for SQLite (in addition to MySQL and PostgreSQL)
-- **RelationManager Support** — Independent locale management for relation managers
-
-## Requirements
-
-| Dependency | Version |
-|------------|---------|
-| PHP | ^8.1 |
-| Laravel | ^10.0 |
-| Filament | ^3.0 |
-| spatie/laravel-translatable | ^6.0 |
+- **Locale Switching** - Switch between locales on Create, Edit, List, View, and Manage pages
+- **Translation Status Column** - Visual table column showing translation completeness per locale with colored badges
+- **Translation Status Trait** - Introspect translation status (complete/partial/empty) and completeness percentage
+- **Locale Flags** - Emoji flag support with configurable display (flag+label, flag only, label only)
+- **Unified DX Trait** - `InteractsWithTranslations` for less boilerplate
+- **SQLite Search** - JSON search support for SQLite (in addition to MySQL and PostgreSQL)
+- **RelationManager Support** - Independent locale management for relation managers
+- **30+ Built-in Flags** - Pre-configured emoji flags for the most common locales
 
 ## Installation
 
@@ -35,7 +41,7 @@ php artisan vendor:publish --tag="filament-translatable-config"
 
 ## Setup
 
-### 1. Configure Model
+### 1. Configure your Model
 
 Your model must use Spatie's `HasTranslations` trait:
 
@@ -53,15 +59,21 @@ class Post extends Model
 }
 ```
 
-Translatable columns must be `json` in your migration:
+Translatable columns must use `json` type in your migration:
 
 ```php
-$table->json('title');
-$table->json('content');
-$table->string('slug'); // non-translatable
+Schema::create('posts', function (Blueprint $table) {
+    $table->id();
+    $table->json('title');
+    $table->json('content');
+    $table->string('slug'); // non-translatable fields use regular column types
+    $table->timestamps();
+});
 ```
 
-### 2. Register Plugin
+### 2. Register the Plugin
+
+Add the plugin to your `PanelProvider`:
 
 ```php
 use JeffersonGoncalves\FilamentTranslatable\FilamentTranslatablePlugin;
@@ -76,7 +88,7 @@ public function panel(Panel $panel): Panel
 }
 ```
 
-### 3. Add Translatable to Resource
+### 3. Add Translatable to your Resource
 
 ```php
 use JeffersonGoncalves\FilamentTranslatable\Resources\Concerns\Translatable;
@@ -84,18 +96,21 @@ use JeffersonGoncalves\FilamentTranslatable\Resources\Concerns\Translatable;
 class PostResource extends Resource
 {
     use Translatable;
+
     // ...
 }
 ```
 
 ### 4. Add Translatable to Pages
 
-Each page needs its own trait and the `LocaleSwitcher` action:
+Each page type needs its own trait and the `LocaleSwitcher` header action:
 
 ```php
 use JeffersonGoncalves\FilamentTranslatable\Actions\LocaleSwitcher;
+use JeffersonGoncalves\FilamentTranslatable\Resources\Pages\CreateRecord;
+use JeffersonGoncalves\FilamentTranslatable\Resources\Pages\EditRecord;
+use JeffersonGoncalves\FilamentTranslatable\Resources\Pages\ListRecords;
 
-// CreateRecord
 class CreatePost extends CreateRecord
 {
     use CreateRecord\Concerns\Translatable;
@@ -106,7 +121,6 @@ class CreatePost extends CreateRecord
     }
 }
 
-// EditRecord
 class EditPost extends EditRecord
 {
     use EditRecord\Concerns\Translatable;
@@ -117,7 +131,6 @@ class EditPost extends EditRecord
     }
 }
 
-// ListRecords
 class ListPosts extends ListRecords
 {
     use ListRecords\Concerns\Translatable;
@@ -129,11 +142,38 @@ class ListPosts extends ListRecords
 }
 ```
 
-## Enhanced Features
+Additional page types are also supported:
 
-### Translation Status Column
+```php
+use JeffersonGoncalves\FilamentTranslatable\Resources\Pages\ViewRecord;
+use JeffersonGoncalves\FilamentTranslatable\Resources\Pages\ManageRecords;
 
-Show translation completeness per locale in your table:
+// ViewRecord
+class ViewPost extends ViewRecord
+{
+    use ViewRecord\Concerns\Translatable;
+
+    protected function getHeaderActions(): array
+    {
+        return [LocaleSwitcher::make()];
+    }
+}
+
+// ManageRecords (simple resource)
+class ManagePosts extends ManageRecords
+{
+    use ManageRecords\Concerns\Translatable;
+
+    protected function getHeaderActions(): array
+    {
+        return [LocaleSwitcher::make()];
+    }
+}
+```
+
+## Translation Status Column
+
+Show translation completeness per locale in your table with colored badges:
 
 ```php
 use JeffersonGoncalves\FilamentTranslatable\Tables\Columns\TranslationStatusColumn;
@@ -143,17 +183,22 @@ public static function table(Table $table): Table
     return $table->columns([
         TextColumn::make('title'),
         TranslationStatusColumn::make('translations')
-            ->showPercentage()    // show completion %
-            ->onlyShowMissing()   // hide complete locales
-            ->showFlags()         // show emoji flags
-            ->locales(['en', 'pt_BR', 'es']), // custom locales
+            ->showPercentage()    // show completion percentage
+            ->onlyShowMissing()   // hide locales that are fully translated
+            ->showFlags()         // show emoji flags next to locale labels
+            ->locales(['en', 'pt_BR', 'es']), // override plugin locales
     ]);
 }
 ```
 
-### Translation Status Trait
+Each locale displays a colored badge indicating its translation status:
+- **Success** (green) - All translatable attributes are filled
+- **Warning** (yellow) - Some translatable attributes are filled
+- **Danger** (red) - No translatable attributes are filled
 
-Use `HasTranslationStatus` to check translation status programmatically:
+## Translation Status Trait
+
+Use `HasTranslationStatus` on any page to check translation status programmatically:
 
 ```php
 use JeffersonGoncalves\FilamentTranslatable\Concerns\HasTranslationStatus;
@@ -162,30 +207,45 @@ class EditPost extends EditRecord
 {
     use EditRecord\Concerns\Translatable;
     use HasTranslationStatus;
-
-    // Available methods:
-    // $this->getTranslationStatus($record)       => ['en' => 'complete', 'pt_BR' => 'partial', 'fr' => 'empty']
-    // $this->getTranslationCompleteness($record)  => ['en' => 100, 'pt_BR' => 50, 'fr' => 0]
-    // $this->getTranslatedLocales($record)         => ['en', 'pt_BR']
 }
 ```
 
-### Locale Flags
+Available methods:
 
-Configure emoji flags per locale:
+```php
+// Get status per locale: 'complete', 'partial', or 'empty'
+$this->getTranslationStatus($record);
+// => ['en' => 'complete', 'pt_BR' => 'partial', 'fr' => 'empty']
+
+// Get completeness percentage per locale (0-100)
+$this->getTranslationCompleteness($record);
+// => ['en' => 100, 'pt_BR' => 50, 'fr' => 0]
+
+// Get locales that have at least one translated attribute
+$this->getTranslatedLocales($record);
+// => ['en', 'pt_BR']
+```
+
+## Locale Flags
+
+The plugin ships with 30+ built-in emoji flags. Configure them per locale in the plugin or via config:
 
 ```php
 FilamentTranslatablePlugin::make()
     ->defaultLocales(['en', 'pt_BR', 'es'])
     ->localeFlags([
-        'en' => '🇺🇸',
-        'pt_BR' => '🇧🇷',
-        'es' => '🇪🇸',
+        'en' => "\u{1F1FA}\u{1F1F8}",
+        'pt_BR' => "\u{1F1E7}\u{1F1F7}",
+        'es' => "\u{1F1EA}\u{1F1F8}",
     ])
-    ->flagDisplay('flag_and_label'), // 'flag_and_label', 'flag_only', 'label_only'
+    ->flagDisplay('flag_and_label'), // 'flag_and_label' | 'flag_only' | 'label_only'
 ```
 
-### Custom Locale Labels
+Built-in flags include: `en`, `pt_BR`, `pt`, `es`, `fr`, `de`, `it`, `nl`, `ja`, `ko`, `zh`, `ru`, `ar`, `hi`, `tr`, `pl`, `uk`, `sv`, `da`, `no`, `fi`, `cs`, `el`, `ro`, `hu`, `th`, `vi`, `id`, `ms`, `he`.
+
+## Custom Locale Labels
+
+Override how locale names are displayed:
 
 ```php
 FilamentTranslatablePlugin::make()
@@ -193,23 +253,44 @@ FilamentTranslatablePlugin::make()
     ->getLocaleLabelUsing(fn (string $locale) => match ($locale) {
         'en' => 'English',
         'pt_BR' => 'Portugues',
-        default => null,
+        default => null, // falls back to locale_get_display_name()
     }),
 ```
 
-### RelationManager
+## RelationManager
+
+Relation managers have independent locale management using a dedicated `LocaleSwitcher`:
 
 ```php
+use JeffersonGoncalves\FilamentTranslatable\Resources\RelationManagers\Concerns\Translatable;
 use JeffersonGoncalves\FilamentTranslatable\Tables\Actions\LocaleSwitcher;
 
 class CommentsRelationManager extends RelationManager
 {
-    use RelationManager\Concerns\Translatable;
+    use Translatable;
 
     protected function getHeaderActions(): array
     {
         return [LocaleSwitcher::make()];
     }
+}
+```
+
+> Note: Relation managers use `JeffersonGoncalves\FilamentTranslatable\Tables\Actions\LocaleSwitcher` (from `Tables\Actions`), while pages use `JeffersonGoncalves\FilamentTranslatable\Actions\LocaleSwitcher` (from `Actions`).
+
+## InteractsWithTranslations
+
+For less boilerplate, you can use the unified `InteractsWithTranslations` trait instead of page-specific traits:
+
+```php
+use JeffersonGoncalves\FilamentTranslatable\Concerns\InteractsWithTranslations;
+
+class EditPost extends EditRecord
+{
+    use InteractsWithTranslations;
+
+    // Automatically detects the page type and provides
+    // getTranslatableLocales() and locale management
 }
 ```
 
@@ -219,17 +300,43 @@ class CommentsRelationManager extends RelationManager
 // config/filament-translatable.php
 
 return [
-    // Locale to emoji flag mapping
+    /*
+    |--------------------------------------------------------------------------
+    | Locale Flags
+    |--------------------------------------------------------------------------
+    |
+    | Map of locale codes to emoji flags. Used by the LocaleSwitcher and
+    | TranslationStatusColumn to display visual locale indicators.
+    |
+    */
     'locale_flags' => [
-        'en' => '🇺🇸',
-        'pt_BR' => '🇧🇷',
-        // ...
+        'en' => "\u{1F1FA}\u{1F1F8}", // US
+        'pt_BR' => "\u{1F1E7}\u{1F1F7}", // BR
+        'es' => "\u{1F1EA}\u{1F1F8}", // ES
+        'fr' => "\u{1F1EB}\u{1F1F7}", // FR
+        'de' => "\u{1F1E9}\u{1F1EA}", // DE
+        // ... 25+ more built-in
     ],
 
-    // Display format: 'flag_and_label', 'flag_only', 'label_only'
+    /*
+    |--------------------------------------------------------------------------
+    | Flag Display Format
+    |--------------------------------------------------------------------------
+    |
+    | Controls how locale labels are displayed in the LocaleSwitcher.
+    | Options: 'flag_and_label', 'flag_only', 'label_only'
+    |
+    */
     'flag_display' => 'flag_and_label',
 
-    // Badge colors for TranslationStatusColumn
+    /*
+    |--------------------------------------------------------------------------
+    | Translation Status Colors
+    |--------------------------------------------------------------------------
+    |
+    | Filament color names used by the TranslationStatusColumn badges.
+    |
+    */
     'status_colors' => [
         'complete' => 'success',
         'partial' => 'warning',
@@ -240,23 +347,43 @@ return [
 
 ## Migration from `filament/spatie-laravel-translatable-plugin`
 
-1. Replace the package:
-   ```bash
-   composer remove filament/spatie-laravel-translatable-plugin
-   composer require jeffersongoncalves/filament-translatable:"^1.0"
-   ```
+This package is an enhanced fork of Filament's official translatable plugin. Migration is straightforward:
 
-2. Update imports in your PanelProvider:
-   ```php
-   // Before
-   use Filament\SpatieLaravelTranslatablePlugin;
-   // After
-   use JeffersonGoncalves\FilamentTranslatable\FilamentTranslatablePlugin;
-   ```
+**1. Replace the package:**
 
-3. Update imports in Resources and Pages — replace `Filament\Resources\` with `JeffersonGoncalves\FilamentTranslatable\Resources\`
+```bash
+composer remove filament/spatie-laravel-translatable-plugin
+composer require jeffersongoncalves/filament-translatable:"^1.0"
+```
 
-4. Update `LocaleSwitcher` imports — replace `Filament\Actions\LocaleSwitcher` with `JeffersonGoncalves\FilamentTranslatable\Actions\LocaleSwitcher`
+**2. Update PanelProvider imports:**
+
+```php
+// Before
+use Filament\SpatieLaravelTranslatablePlugin;
+
+// After
+use JeffersonGoncalves\FilamentTranslatable\FilamentTranslatablePlugin;
+```
+
+**3. Update Resource and Page imports:**
+
+Replace `Filament\Resources\` with `JeffersonGoncalves\FilamentTranslatable\Resources\` in all translatable traits.
+
+**4. Update LocaleSwitcher imports:**
+
+```php
+// Before
+use Filament\Actions\LocaleSwitcher;
+
+// After (for pages)
+use JeffersonGoncalves\FilamentTranslatable\Actions\LocaleSwitcher;
+
+// After (for relation managers)
+use JeffersonGoncalves\FilamentTranslatable\Tables\Actions\LocaleSwitcher;
+```
+
+**5. Enjoy the new features** - Translation Status Column, locale flags, and status introspection are ready to use.
 
 ## Testing
 
@@ -266,7 +393,7 @@ composer test
 
 ## Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+Please see [Releases](https://github.com/jeffersongoncalves/filament-translatable/releases) for more information on what has changed recently.
 
 ## License
 
