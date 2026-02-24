@@ -1,3 +1,9 @@
+<div class="filament-hidden">
+
+![Filament Translatable](https://raw.githubusercontent.com/jeffersongoncalves/filament-translatable/2.x/art/jeffersongoncalves-filament-translatable.png)
+
+</div>
+
 # Filament Translatable
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/jeffersongoncalves/filament-translatable.svg?style=flat-square)](https://packagist.org/packages/jeffersongoncalves/filament-translatable)
