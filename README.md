@@ -35,6 +35,8 @@ Enhanced Filament plugin for [spatie/laravel-translatable](https://github.com/sp
 
 ## Installation
 
+You can install the package via composer:
+
 ```bash
 composer require jeffersongoncalves/filament-translatable:"^2.0"
 ```
