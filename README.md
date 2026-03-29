@@ -1,6 +1,6 @@
 <div class="filament-hidden">
 
-![Filament Translatable](https://raw.githubusercontent.com/jeffersongoncalves/filament-translatable/3.x/art/jeffersongoncalves-filament-translatable.png)
+![Filament Translatable](https://raw.githubusercontent.com/jeffersongoncalves/filament-translatable/3.x/art/jeffersongoncalves-filament-translatable.jpg)
 
 </div>
 
