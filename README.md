@@ -405,6 +405,14 @@ composer test
 
 Please see [Releases](https://github.com/jeffersongoncalves/filament-translatable/releases) for more information on what has changed recently.
 
+## Security Vulnerabilities
+
+Please see [SECURITY](.github/SECURITY.md) for details.
+
+## Credits
+
+- [Jefferson Gonçalves](https://github.com/jeffersongoncalves)
+
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
